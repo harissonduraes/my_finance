@@ -58,3 +58,4 @@ platforms. If adding new DB code, ensure the same guard (
 - **No abbreviations**: nomes completos, nunca cortados (`despesa` não `desp`)
 - **Where param**: usar `w` como parâmetro: `.where((w) => w. ...)`
 - **No single-letter names**: never use one-letter variable names (e.g., `despesa` not `d`)
+- **No single-letter parameters**: never use one-letter function parameter names (e.g., `double despesa` not `double d`)

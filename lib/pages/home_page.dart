@@ -89,7 +89,7 @@ class HomePageState extends State<HomePage> {
         ? TextEditingController(text: descricaoInicial)
         : null;
     final cardNames = mostraCartao
-        ? _faturas.map((f) => f.cartao).toSet().toList()
+        ? _faturas.map((fatura) => fatura.cartao).toSet().toList()
         : <String>[];
 
     showModalBottomSheet(
@@ -235,27 +235,27 @@ class HomePageState extends State<HomePage> {
                   onAdd: () => _showFormModal(
                     titulo: "Adicionar Receita",
                     mostraCartao: true,
-                    onSave: (v, d, c, _) =>
-                        _receitaController.insertAsync(v, d, c),
+                    onSave: (valor, dia, cartao, _) =>
+                        _receitaController.insertAsync(valor, dia, cartao),
                   ),
                   items: _receitas
                       .map(
-                        (r) => _buildItemRow(
-                          titulo: r.cartao != null
-                              ? "${r.cartao} - R\$ ${r.valor.toStringAsFixed(2)}"
-                              : "R\$ ${r.valor.toStringAsFixed(2)}",
-                          subtitulo: "Dia ${r.dia}",
+                        (receita) => _buildItemRow(
+                          titulo: receita.cartao != null
+                              ? "${receita.cartao} - R\$ ${receita.valor.toStringAsFixed(2)}"
+                              : "R\$ ${receita.valor.toStringAsFixed(2)}",
+                          subtitulo: "Dia ${receita.dia}",
                           cor: Colors.green,
                           onEdit: () => _showFormModal(
                             titulo: "Editar Receita",
-                            valorInicial: r.valor,
-                            diaInicial: r.dia,
-                            cartaoInicial: r.cartao,
+                            valorInicial: receita.valor,
+                            diaInicial: receita.dia,
+                            cartaoInicial: receita.cartao,
                             mostraCartao: true,
-                            onSave: (v, d, c, _) =>
-                                _receitaController.updateAsync(r.id!, v, d, c),
+                            onSave: (valor, dia, cartao, _) =>
+                                _receitaController.updateAsync(receita.id!, valor, dia, cartao),
                           ),
-                          onDelete: () => _deleteReceita(r),
+                           onDelete: () => _deleteReceita(receita),
                         ),
                       )
                       .toList(),
@@ -267,26 +267,26 @@ class HomePageState extends State<HomePage> {
                   onAdd: () => _showFormModal(
                     titulo: "Adicionar Fatura",
                     mostraCartao: true,
-                    onSave: (v, d, c, _) =>
-                        _faturaController.insertAsync(v, c ?? "", d),
+                    onSave: (valor, dia, cartao, _) =>
+                        _faturaController.insertAsync(valor, cartao ?? "", dia),
                   ),
                   items: _faturas
                       .map(
-                        (f) => _buildItemRow(
+                        (fatura) => _buildItemRow(
                           titulo:
-                              "${f.cartao} - R\$ ${f.valor.toStringAsFixed(2)}",
-                          subtitulo: "Vencimento dia ${f.dia}",
+                              "${fatura.cartao} - R\$ ${fatura.valor.toStringAsFixed(2)}",
+                          subtitulo: "Vencimento dia ${fatura.dia}",
                           cor: Colors.orange,
                           onEdit: () => _showFormModal(
                             titulo: "Editar Fatura",
-                            valorInicial: f.valor,
-                            diaInicial: f.dia,
-                            cartaoInicial: f.cartao,
+                            valorInicial: fatura.valor,
+                            diaInicial: fatura.dia,
+                            cartaoInicial: fatura.cartao,
                             mostraCartao: true,
-                            onSave: (v, d, c, _) => _faturaController
-                                .updateAsync(f.id!, v, c ?? "", d),
+                            onSave: (valor, dia, cartao, _) => _faturaController
+                                .updateAsync(fatura.id!, valor, cartao ?? "", dia),
                           ),
-                          onDelete: () => _deleteFatura(f),
+                           onDelete: () => _deleteFatura(fatura),
                         ),
                       )
                       .toList(),
@@ -298,8 +298,8 @@ class HomePageState extends State<HomePage> {
                   onAdd: () => _showFormModal(
                     titulo: "Adicionar Despesa Fixa",
                     mostraDescricao: true,
-                    onSave: (v, d, _, desc) =>
-                        _despesaController.insertAsync(v, d, desc ?? ''),
+                    onSave: (valor, dia, _, descricao) =>
+                        _despesaController.insertAsync(valor, dia, descricao ?? ''),
                   ),
                   items: _despesas
                       .map(
@@ -316,8 +316,8 @@ class HomePageState extends State<HomePage> {
                             diaInicial: despesa.dia,
                             descricaoInicial: despesa.descricao,
                             mostraDescricao: true,
-                            onSave: (v, d2, _, desc) => _despesaController
-                                .updateAsync(despesa.id!, v, d2, desc ?? ''),
+                            onSave: (valor, dia, _, descricao) => _despesaController
+                                .updateAsync(despesa.id!, valor, dia, descricao ?? ''),
                           ),
                           onDelete: () => _deleteDespesa(despesa),
                         ),
