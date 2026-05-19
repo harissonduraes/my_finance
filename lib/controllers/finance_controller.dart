@@ -20,28 +20,28 @@ class FinanceController {
   Future<List<DespesaModel>> getDespesasAsync() =>
       _despesaRepository.getAllAsync();
 
-  double _total(List<ReceitaModel> rs) {
-    double s = 0;
-    for (final r in rs) {
-      s += r.receita;
+  double _total(List<ReceitaModel> receitas) {
+    double soma = 0;
+    for (final receita in receitas) {
+      soma += receita.receita;
     }
-    return s;
+    return soma;
   }
 
-  double _totalFatura(List<FaturaModel> fs) {
-    double s = 0;
-    for (final f in fs) {
-      s += f.fatura;
+  double _totalFatura(List<FaturaModel> faturas) {
+    double soma = 0;
+    for (final fatura in faturas) {
+      soma += fatura.fatura;
     }
-    return s;
+    return soma;
   }
 
-  double _totalDespesa(List<DespesaModel> ds) {
-    double s = 0;
-    for (final d in ds) {
-      s += d.despesa;
+  double _totalDespesa(List<DespesaModel> despesas) {
+    double soma = 0;
+    for (final despesa in despesas) {
+      soma += despesa.despesa;
     }
-    return s;
+    return soma;
   }
 
   double calcularSaldo(
@@ -52,9 +52,9 @@ class FinanceController {
     return _total(receitas) - (_totalFatura(faturas) + _totalDespesa(despesas));
   }
 
-  double saldoDebito(List<ReceitaModel> receitas, List<DespesaModel> despesas) {
-    return _total(receitas) - _totalDespesa(despesas);
-  }
+  // double saldoDebito(List<ReceitaModel> receitas, List<DespesaModel> despesas) {
+  //   return _total(receitas) - _totalDespesa(despesas);
+  // }
 
   List<SaldoPorCartao> calcularSaldoPorCartao(
     List<ReceitaModel> receitas,
@@ -62,19 +62,22 @@ class FinanceController {
     List<DespesaModel> despesas,
   ) {
     Map<String, List<FaturaModel>> grouped = {};
-    for (var f in faturas) {
-      grouped.putIfAbsent(f.cartao, () => []).add(f);
+    for (var fatura in faturas) {
+      grouped.putIfAbsent(fatura.cartao, () => []).add(fatura);
     }
 
     return grouped.entries.map((entry) {
-      final cardTotal = entry.value.fold(0.0, (s, f) => s + f.fatura);
+      final cardTotal = entry.value.fold(
+        0.0,
+        (soma, fatura) => soma + fatura.fatura,
+      );
       final firstDay = entry.value.first.dia;
       final entrada = receitas
-          .where((r) => r.dia == firstDay)
-          .fold(0.0, (s, r) => s + r.receita);
+          .where((w) => w.dia == firstDay)
+          .fold(0.0, (saldo, receita) => saldo + receita.receita);
       final cardDespesa = despesas
           .where((d) => d.dia == firstDay)
-          .fold(0.0, (s, d) => s + d.despesa);
+          .fold(0.0, (saldo, despesa) => saldo + despesa.despesa);
       return SaldoPorCartao(
         cartao: entry.key,
         disponivel: entrada - (cardDespesa + cardTotal),

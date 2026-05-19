@@ -7,15 +7,15 @@ class ReceitaController {
 
   Future<List<ReceitaModel>> getAsync() => _receitaRepository.getAllAsync();
 
-  Future<void> insertAsync(double valor, String dia) async {
+  Future<void> insertAsync(double valor, String dia, String? cartao) async {
     await _receitaRepository.insertAsync(
-      ReceitaModel(receita: valor, dia: dia),
+      ReceitaModel(receita: valor, dia: dia, cartao: cartao),
     );
   }
 
-  Future<void> updateAsync(int id, double valor, String dia) async {
+  Future<void> updateAsync(int id, double valor, String dia, String? cartao) async {
     await _receitaRepository.updateAsync(
-      ReceitaModel(id: id, receita: valor, dia: dia),
+      ReceitaModel(id: id, receita: valor, dia: dia, cartao: cartao),
     );
   }
 

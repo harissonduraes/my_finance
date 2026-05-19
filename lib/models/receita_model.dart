@@ -5,12 +5,18 @@ class ReceitaModel implements BaseModel {
   final int? id;
   final double receita;
   final String dia;
+  final String? cartao;
 
-  const ReceitaModel({this.id, required this.receita, required this.dia});
+  const ReceitaModel({
+    this.id,
+    required this.receita,
+    required this.dia,
+    this.cartao,
+  });
 
   @override
   Map<String, dynamic> toMap() {
-    return {'id': id, 'receita': receita, 'dia': dia};
+    return {'id': id, 'receita': receita, 'dia': dia, 'cartao': cartao};
   }
 
   factory ReceitaModel.fromMap(Map<String, dynamic> map) {
@@ -18,6 +24,7 @@ class ReceitaModel implements BaseModel {
       id: map['id'],
       receita: map['receita'],
       dia: map['dia'],
+      cartao: map['cartao'],
     );
   }
 }

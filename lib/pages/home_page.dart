@@ -28,7 +28,8 @@ class HomePageState extends State<HomePage> {
   double _faturaTotal = 0;
   double _despesaTotal = 0;
   double _saldoDisponivel = 0;
-  double _saldoDebito = 0;
+
+  // double _saldoDebito = 0;
   List<SaldoPorCartao> _saldoPorCartao = [];
 
   @override
@@ -47,7 +48,7 @@ class HomePageState extends State<HomePage> {
       _faturas,
       _despesas,
     );
-    _saldoDebito = _controller.saldoDebito(_receitas, _despesas);
+    // _saldoDebito = _controller.saldoDebito(_receitas, _despesas);
     _saldoPorCartao = _controller.calcularSaldoPorCartao(
       _receitas,
       _faturas,
@@ -67,7 +68,14 @@ class HomePageState extends State<HomePage> {
     String? diaInicial,
     String? cartaoInicial,
     bool mostraCartao = false,
-    required Future<void> Function(double valor, String dia, String? cartao)
+    String? descricaoInicial,
+    bool mostraDescricao = false,
+    required Future<void> Function(
+      double valor,
+      String dia,
+      String? cartao,
+      String? descricao,
+    )
     onSave,
   }) {
     final valorCtrl = TextEditingController(
@@ -76,6 +84,9 @@ class HomePageState extends State<HomePage> {
     final diaCtrl = TextEditingController(text: diaInicial ?? '05');
     final cartaoCtrl = mostraCartao
         ? TextEditingController(text: cartaoInicial)
+        : null;
+    final descricaoCtrl = mostraDescricao
+        ? TextEditingController(text: descricaoInicial)
         : null;
     final cardNames = mostraCartao
         ? _faturas.map((f) => f.cartao).toSet().toList()
@@ -130,6 +141,16 @@ class HomePageState extends State<HomePage> {
               ],
               const SizedBox(height: 12),
             ],
+            if (mostraDescricao) ...[
+              TextField(
+                controller: descricaoCtrl,
+                decoration: const InputDecoration(
+                  labelText: "Descrição",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
             TextField(
               controller: valorCtrl,
               decoration: const InputDecoration(
@@ -160,7 +181,12 @@ class HomePageState extends State<HomePage> {
                 if (mostraCartao &&
                     (cartaoCtrl == null || cartaoCtrl.text.isEmpty))
                   return;
-                await onSave(valor, dia, cartaoCtrl?.text);
+                await onSave(
+                  valor,
+                  dia,
+                  cartaoCtrl?.text,
+                  descricaoCtrl?.text ?? '',
+                );
                 // ignore: use_build_context_synchronously
                 if (!context.mounted) return;
                 // ignore: use_build_context_synchronously
@@ -208,20 +234,26 @@ class HomePageState extends State<HomePage> {
                   cor: Colors.green,
                   onAdd: () => _showFormModal(
                     titulo: "Adicionar Receita",
-                    onSave: (v, d, _) => _receitaController.insertAsync(v, d),
+                    mostraCartao: true,
+                    onSave: (v, d, c, _) =>
+                        _receitaController.insertAsync(v, d, c),
                   ),
                   items: _receitas
                       .map(
                         (r) => _buildItemRow(
-                          titulo: "R\$ ${r.receita.toStringAsFixed(2)}",
+                          titulo: r.cartao != null
+                              ? "${r.cartao} - R\$ ${r.receita.toStringAsFixed(2)}"
+                              : "R\$ ${r.receita.toStringAsFixed(2)}",
                           subtitulo: "Dia ${r.dia}",
                           cor: Colors.green,
                           onEdit: () => _showFormModal(
                             titulo: "Editar Receita",
                             valorInicial: r.receita,
                             diaInicial: r.dia,
-                            onSave: (v, d, _) =>
-                                _receitaController.updateAsync(r.id!, v, d),
+                            cartaoInicial: r.cartao,
+                            mostraCartao: true,
+                            onSave: (v, d, c, _) =>
+                                _receitaController.updateAsync(r.id!, v, d, c),
                           ),
                           onDelete: () => _deleteReceita(r),
                         ),
@@ -235,7 +267,7 @@ class HomePageState extends State<HomePage> {
                   onAdd: () => _showFormModal(
                     titulo: "Adicionar Fatura",
                     mostraCartao: true,
-                    onSave: (v, d, c) =>
+                    onSave: (v, d, c, _) =>
                         _faturaController.insertAsync(v, c ?? "", d),
                   ),
                   items: _faturas
@@ -251,12 +283,8 @@ class HomePageState extends State<HomePage> {
                             diaInicial: f.dia,
                             cartaoInicial: f.cartao,
                             mostraCartao: true,
-                            onSave: (v, d, c) => _faturaController.updateAsync(
-                              f.id!,
-                              v,
-                              c ?? "",
-                              d,
-                            ),
+                            onSave: (v, d, c, _) => _faturaController
+                                .updateAsync(f.id!, v, c ?? "", d),
                           ),
                           onDelete: () => _deleteFatura(f),
                         ),
@@ -269,20 +297,27 @@ class HomePageState extends State<HomePage> {
                   cor: Colors.red,
                   onAdd: () => _showFormModal(
                     titulo: "Adicionar Despesa Fixa",
-                    onSave: (v, d, _) => _despesaController.insertAsync(v, d),
+                    mostraDescricao: true,
+                    onSave: (v, d, _, desc) =>
+                        _despesaController.insertAsync(v, d, desc ?? ''),
                   ),
                   items: _despesas
                       .map(
                         (d) => _buildItemRow(
-                          titulo: "R\$ ${d.despesa.toStringAsFixed(2)}",
-                          subtitulo: "Dia ${d.dia}",
+                          titulo: d.descricao.isNotEmpty
+                              ? d.descricao
+                              : "R\$ ${d.despesa.toStringAsFixed(2)}",
+                          subtitulo:
+                              "R\$ ${d.despesa.toStringAsFixed(2)} • Dia ${d.dia}",
                           cor: Colors.red,
                           onEdit: () => _showFormModal(
                             titulo: "Editar Despesa Fixa",
                             valorInicial: d.despesa,
                             diaInicial: d.dia,
-                            onSave: (v, d2, _) =>
-                                _despesaController.updateAsync(d.id!, v, d2),
+                            descricaoInicial: d.descricao,
+                            mostraDescricao: true,
+                            onSave: (v, d2, _, desc) => _despesaController
+                                .updateAsync(d.id!, v, d2, desc ?? ''),
                           ),
                           onDelete: () => _deleteDespesa(d),
                         ),
@@ -318,13 +353,13 @@ class HomePageState extends State<HomePage> {
             ),
           ),
           const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildMiniLabel("DÉBITO", _saldoDebito, Colors.greenAccent),
-              _buildMiniLabel("CARTÃO", _faturaTotal, Colors.orangeAccent),
-            ],
-          ),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          //   children: [
+          //     _buildMiniLabel("DÉBITO", _saldoDebito, Colors.greenAccent),
+          //     _buildMiniLabel("CARTÃO", _faturaTotal, Colors.orangeAccent),
+          //   ],
+          // ),
         ],
       ),
     );

@@ -7,15 +7,15 @@ class DespesaController {
 
   Future<List<DespesaModel>> getAsync() => _despesaRepository.getAllAsync();
 
-  Future<void> insertAsync(double despesa, String dia) async {
+  Future<void> insertAsync(double despesa, String dia, String descricao) async {
     await _despesaRepository.insertAsync(
-      DespesaModel(despesa: despesa, dia: dia),
+      DespesaModel(despesa: despesa, dia: dia, descricao: descricao),
     );
   }
 
-  Future<void> updateAsync(int id, double despesa, String dia) async {
+  Future<void> updateAsync(int id, double despesa, String dia, String descricao) async {
     await _despesaRepository.updateAsync(
-      DespesaModel(id: id, despesa: despesa, dia: dia),
+      DespesaModel(id: id, despesa: despesa, dia: dia, descricao: descricao),
     );
   }
 

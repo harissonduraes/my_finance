@@ -54,3 +54,6 @@ platforms. If adding new DB code, ensure the same guard (
 - **Fold gotcha**: `List.fold(0, …)` infers `int`, causing `int + double` errors. Use explicit loops
   or `.fold(0.0, …)` for doubles
 - **Error access**: use `.single` over `.first`;
+- **Naming**: singular para valor único (`despesa`), plural para lista (`despesas`)
+- **No abbreviations**: nomes completos, nunca cortados (`despesa` não `desp`)
+- **Where param**: usar `w` como parâmetro: `.where((w) => w. ...)`
