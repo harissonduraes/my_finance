@@ -242,13 +242,13 @@ class HomePageState extends State<HomePage> {
                       .map(
                         (r) => _buildItemRow(
                           titulo: r.cartao != null
-                              ? "${r.cartao} - R\$ ${r.receita.toStringAsFixed(2)}"
-                              : "R\$ ${r.receita.toStringAsFixed(2)}",
+                              ? "${r.cartao} - R\$ ${r.valor.toStringAsFixed(2)}"
+                              : "R\$ ${r.valor.toStringAsFixed(2)}",
                           subtitulo: "Dia ${r.dia}",
                           cor: Colors.green,
                           onEdit: () => _showFormModal(
                             titulo: "Editar Receita",
-                            valorInicial: r.receita,
+                            valorInicial: r.valor,
                             diaInicial: r.dia,
                             cartaoInicial: r.cartao,
                             mostraCartao: true,
@@ -274,12 +274,12 @@ class HomePageState extends State<HomePage> {
                       .map(
                         (f) => _buildItemRow(
                           titulo:
-                              "${f.cartao} - R\$ ${f.fatura.toStringAsFixed(2)}",
+                              "${f.cartao} - R\$ ${f.valor.toStringAsFixed(2)}",
                           subtitulo: "Vencimento dia ${f.dia}",
                           cor: Colors.orange,
                           onEdit: () => _showFormModal(
                             titulo: "Editar Fatura",
-                            valorInicial: f.fatura,
+                            valorInicial: f.valor,
                             diaInicial: f.dia,
                             cartaoInicial: f.cartao,
                             mostraCartao: true,
@@ -303,23 +303,23 @@ class HomePageState extends State<HomePage> {
                   ),
                   items: _despesas
                       .map(
-                        (d) => _buildItemRow(
-                          titulo: d.descricao.isNotEmpty
-                              ? d.descricao
-                              : "R\$ ${d.despesa.toStringAsFixed(2)}",
+                        (despesa) => _buildItemRow(
+                          titulo: despesa.descricao.isNotEmpty
+                              ? despesa.descricao
+                              : "R\$ ${despesa.valor.toStringAsFixed(2)}",
                           subtitulo:
-                              "R\$ ${d.despesa.toStringAsFixed(2)} • Dia ${d.dia}",
+                              "R\$ ${despesa.valor.toStringAsFixed(2)} • Dia ${despesa.dia}",
                           cor: Colors.red,
                           onEdit: () => _showFormModal(
                             titulo: "Editar Despesa Fixa",
-                            valorInicial: d.despesa,
-                            diaInicial: d.dia,
-                            descricaoInicial: d.descricao,
+                            valorInicial: despesa.valor,
+                            diaInicial: despesa.dia,
+                            descricaoInicial: despesa.descricao,
                             mostraDescricao: true,
                             onSave: (v, d2, _, desc) => _despesaController
-                                .updateAsync(d.id!, v, d2, desc ?? ''),
+                                .updateAsync(despesa.id!, v, d2, desc ?? ''),
                           ),
-                          onDelete: () => _deleteDespesa(d),
+                          onDelete: () => _deleteDespesa(despesa),
                         ),
                       )
                       .toList(),

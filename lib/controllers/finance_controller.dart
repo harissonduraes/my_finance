@@ -23,7 +23,7 @@ class FinanceController {
   double _total(List<ReceitaModel> receitas) {
     double soma = 0;
     for (final receita in receitas) {
-      soma += receita.receita;
+      soma += receita.valor;
     }
     return soma;
   }
@@ -31,7 +31,7 @@ class FinanceController {
   double _totalFatura(List<FaturaModel> faturas) {
     double soma = 0;
     for (final fatura in faturas) {
-      soma += fatura.fatura;
+      soma += fatura.valor;
     }
     return soma;
   }
@@ -39,7 +39,7 @@ class FinanceController {
   double _totalDespesa(List<DespesaModel> despesas) {
     double soma = 0;
     for (final despesa in despesas) {
-      soma += despesa.despesa;
+      soma += despesa.valor;
     }
     return soma;
   }
@@ -69,20 +69,20 @@ class FinanceController {
     return grouped.entries.map((entry) {
       final cardTotal = entry.value.fold(
         0.0,
-        (soma, fatura) => soma + fatura.fatura,
+        (soma, fatura) => soma + fatura.valor,
       );
-      final firstDay = entry.value.first.dia;
+      final dia = entry.value.single.dia;
       final entrada = receitas
-          .where((w) => w.dia == firstDay)
-          .fold(0.0, (saldo, receita) => saldo + receita.receita);
+          .where((w) => w.dia == dia)
+          .fold(0.0, (saldo, receita) => saldo + receita.valor);
       final cardDespesa = despesas
-          .where((d) => d.dia == firstDay)
-          .fold(0.0, (saldo, despesa) => saldo + despesa.despesa);
+          .where((d) => d.dia == dia)
+          .fold(0.0, (saldo, despesa) => saldo + despesa.valor);
       return SaldoPorCartao(
         cartao: entry.key,
         disponivel: entrada - (cardDespesa + cardTotal),
         total: cardTotal,
-        dia: firstDay,
+        dia: dia,
       );
     }).toList();
   }

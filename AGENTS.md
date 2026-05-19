@@ -57,3 +57,4 @@ platforms. If adding new DB code, ensure the same guard (
 - **Naming**: singular para valor único (`despesa`), plural para lista (`despesas`)
 - **No abbreviations**: nomes completos, nunca cortados (`despesa` não `desp`)
 - **Where param**: usar `w` como parâmetro: `.where((w) => w. ...)`
+- **No single-letter names**: never use one-letter variable names (e.g., `despesa` not `d`)

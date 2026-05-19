@@ -9,13 +9,13 @@ class ReceitaController {
 
   Future<void> insertAsync(double valor, String dia, String? cartao) async {
     await _receitaRepository.insertAsync(
-      ReceitaModel(receita: valor, dia: dia, cartao: cartao),
+      ReceitaModel(valor: valor, dia: dia, cartao: cartao),
     );
   }
 
   Future<void> updateAsync(int id, double valor, String dia, String? cartao) async {
     await _receitaRepository.updateAsync(
-      ReceitaModel(id: id, receita: valor, dia: dia, cartao: cartao),
+      ReceitaModel(id: id, valor: valor, dia: dia, cartao: cartao),
     );
   }
 
@@ -27,7 +27,7 @@ class ReceitaController {
     final entities = await getAsync();
     double total = 0;
     for (final item in entities) {
-      total += item.receita;
+      total += item.valor;
     }
     return total;
   }

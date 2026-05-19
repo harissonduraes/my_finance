@@ -5,7 +5,7 @@ class SQLHelper {
         await database.execute('''          
             CREATE TABLE receita(
               id INTEGER PRIMARY KEY AUTOINCREMENT,
-              receita REAL,
+              valor REAL,
               dia TEXT,
               cartao TEXT
             )
@@ -13,7 +13,7 @@ class SQLHelper {
         await database.execute('''
             CREATE TABLE fatura(
               id INTEGER PRIMARY KEY AUTOINCREMENT,
-              fatura REAL,
+              valor REAL,
               cartao TEXT,
               dia TEXT
             )
@@ -21,7 +21,7 @@ class SQLHelper {
         await database.execute('''
             CREATE TABLE despesa(
               id INTEGER PRIMARY KEY AUTOINCREMENT,
-              despesa REAL,
+              valor REAL,
               dia TEXT,
               descricao TEXT
             )
@@ -31,7 +31,7 @@ class SQLHelper {
   static Future<sql.Database> db() async {
     return sql.openDatabase(
       'finance4.db',
-      version: 2,
+      version: 3,
       onCreate: (sql.Database database, int version) async {
         await createTables(database);
       },
@@ -39,6 +39,11 @@ class SQLHelper {
         if (oldVersion < 2) {
           await database.execute('ALTER TABLE despesa ADD COLUMN descricao TEXT');
           await database.execute('ALTER TABLE receita ADD COLUMN cartao TEXT');
+        }
+        if (oldVersion < 3) {
+          await database.execute('ALTER TABLE receita RENAME COLUMN receita TO valor');
+          await database.execute('ALTER TABLE fatura RENAME COLUMN fatura TO valor');
+          await database.execute('ALTER TABLE despesa RENAME COLUMN despesa TO valor');
         }
       },
     );

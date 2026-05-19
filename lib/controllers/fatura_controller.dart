@@ -6,15 +6,15 @@ class FaturaController {
 
   Future<List<FaturaModel>> getAsync() => _faturaRepository.getAllAsync();
 
-  Future<void> insertAsync(double fatura, String cartao, String dia) async {
+  Future<void> insertAsync(double valor, String cartao, String dia) async {
     await _faturaRepository.insertAsync(
-      FaturaModel(fatura: fatura, cartao: cartao, dia: dia),
+      FaturaModel(valor: valor, cartao: cartao, dia: dia),
     );
   }
 
-  Future<void> updateAsync(int id, double fatura, String cartao, String dia) async {
+  Future<void> updateAsync(int id, double valor, String cartao, String dia) async {
     await _faturaRepository.updateAsync(
-      FaturaModel(id: id, fatura: fatura, cartao: cartao, dia: dia),
+      FaturaModel(id: id, valor: valor, cartao: cartao, dia: dia),
     );
   }
 
@@ -26,7 +26,7 @@ class FaturaController {
     final entities = await getAsync();
     double total = 0;
     for (final item in entities) {
-      total += item.fatura;
+      total += item.valor;
     }
     return total;
   }
