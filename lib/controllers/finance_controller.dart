@@ -1,50 +1,86 @@
-import '../models/finance_model.dart';
-import '../repositories/finance_repository.dart';
+import '../models/despesa_model.dart';
+import '../models/fatura_model.dart';
+import '../models/receita_model.dart';
+import '../repositories/despesa_repository.dart';
+import '../repositories/fatura_repository.dart';
+import '../repositories/receita_repository.dart';
+import '../view_models/saldo_por_cartao.dart';
 
 class FinanceController {
-  final FinanceRepository _repository = FinanceRepository();
+  final _faturaRepository = FaturaRepository();
+  final _receitaRepository = ReceitaRepository();
+  final _despesaRepository = DespesaRepository();
 
-  Future<FinanceModel?> getAsync() async {
-    final list = await _repository.getAllAsync();
-    return list.isNotEmpty ? list.first : null;
-  }
+  Future<List<ReceitaModel>> getReceitasAsync() =>
+      _receitaRepository.getAllAsync();
 
-  Future<void> insertAsync(FinanceModel newData, FinanceModel? currentData) async {
-    if (currentData == null) {
-      await _repository.insertAsync(newData);
-    } else {
-      final modelToUpdate = FinanceModel(
-        id: currentData.id,
-        ganhoDia05: newData.ganhoDia05,
-        ganhoDia20: newData.ganhoDia20,
-        faturaDia05: newData.faturaDia05,
-        faturaDia20: newData.faturaDia20,
-        despesaFixaDia05: newData.despesaFixaDia05,
-        despesaFixaDia20: newData.despesaFixaDia20,
-      );
-      await _repository.updateAsync(modelToUpdate);
+  Future<List<FaturaModel>> getFaturasAsync() =>
+      _faturaRepository.getAllAsync();
+
+  Future<List<DespesaModel>> getDespesasAsync() =>
+      _despesaRepository.getAllAsync();
+
+  double _total(List<ReceitaModel> rs) {
+    double s = 0;
+    for (final r in rs) {
+      s += r.receita;
     }
+    return s;
   }
 
-  double calcularLimiteDisponivel(FinanceModel data) {
-    double entradas = data.ganhoDia05 + data.ganhoDia20;
-    double saidas = data.faturaDia05 + data.faturaDia20 +
-        data.despesaFixaDia05 + data.despesaFixaDia20;
-
-    return entradas - saidas;
+  double _totalFatura(List<FaturaModel> fs) {
+    double s = 0;
+    for (final f in fs) {
+      s += f.fatura;
+    }
+    return s;
   }
 
-  double calcularLimiteDisponivelDia05(FinanceModel data) {
-    double entrada = data.ganhoDia05;
-    double saida = data.faturaDia05 + data.despesaFixaDia05;
-
-    return entrada - saida;
+  double _totalDespesa(List<DespesaModel> ds) {
+    double s = 0;
+    for (final d in ds) {
+      s += d.despesa;
+    }
+    return s;
   }
 
-  double calcularLimiteDisponivelDia20(FinanceModel data){
-    double entrada = data.ganhoDia20;
-    double saida = data.faturaDia20 + data.despesaFixaDia20;
+  double calcularSaldo(
+    List<ReceitaModel> receitas,
+    List<FaturaModel> faturas,
+    List<DespesaModel> despesas,
+  ) {
+    return _total(receitas) - (_totalFatura(faturas) + _totalDespesa(despesas));
+  }
 
-    return entrada - saida;
+  double saldoDebito(List<ReceitaModel> receitas, List<DespesaModel> despesas) {
+    return _total(receitas) - _totalDespesa(despesas);
+  }
+
+  List<SaldoPorCartao> calcularSaldoPorCartao(
+    List<ReceitaModel> receitas,
+    List<FaturaModel> faturas,
+    List<DespesaModel> despesas,
+  ) {
+    Map<String, List<FaturaModel>> grouped = {};
+    for (var f in faturas) {
+      grouped.putIfAbsent(f.cartao, () => []).add(f);
+    }
+
+    return grouped.entries.map((entry) {
+      final cardTotal = entry.value.fold(0.0, (s, f) => s + f.fatura);
+      final firstDay = entry.value.first.dia;
+      final entrada = receitas
+          .where((r) => r.dia == firstDay)
+          .fold(0.0, (s, r) => s + r.receita);
+      final cardDespesa = despesas
+          .where((d) => d.dia == firstDay)
+          .fold(0.0, (s, d) => s + d.despesa);
+      return SaldoPorCartao(
+        cartao: entry.key,
+        disponivel: entrada - (cardDespesa + cardTotal),
+        total: cardTotal,
+        dia: firstDay,
+      );
+    }).toList();
   }
 }

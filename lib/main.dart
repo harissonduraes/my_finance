@@ -25,7 +25,7 @@ class MainApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreen),
       ),
-      home: const HomePage(),
+      home: HomePage(),
     );
   }
 }
